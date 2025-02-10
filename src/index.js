@@ -3,8 +3,7 @@ import dotenv from "dotenv";
 import {PrismaClient} from "@prisma/client"
 import bodyParser from "body-parser";
 import cors from "cors";
-import categoryRoutes from './routes/categoryRoutes.js'; // Impor categoryRoutes
-import classRoutes from './routes/classRoutes.js'; // Impor classRoutes
+
 
 
 
@@ -18,12 +17,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(cors());
-
-// Gunakan routes untuk class
-app.use("/api/class", classRoutes);
-
-// Gunakan routes untuk category
-app.use("/api/category", categoryRoutes);
 
 
 //ReadMany
