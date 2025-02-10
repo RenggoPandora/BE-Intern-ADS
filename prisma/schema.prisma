@@ -16,12 +16,21 @@ datasource db {
 model Class {
   id        String @id @default(cuid())
   code      String
-  category  String?
   name      String
   type      String
   level     String
   price     String
   status    Boolean @default(true)
   content   String?
+
+  categoryId String? @map("category_id") 
+  category   Category? @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  category  String
+  status    Boolean  @default(true)
+  classes   Class[]
 }
 
