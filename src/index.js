@@ -21,36 +21,45 @@ app.use(cors());
 
 //ReadMany
 app.get("/api/class", async (req, res) => {
-    const classes = await prisma.class.findMany({
-        where: {
-            status: true,
-        }
-    });
-    console.log(classes);
+  try {
+      const classes = await prisma.class.findMany({
+          where: {
+              status: true,
+          },
+          include: {
+              category: true, // Tambahkan ini untuk menyertakan data category
+          },
+      });
 
-    res.status(200).json({
-        message: "Success get class data",
-        datas : classes,
-    }); 
+      res.status(200).json({
+          message: "Success get class data",
+          datas: classes,
+      });
+  } catch (error) {
+      console.error("Error fetching classes:", error);
+      res.status(500).json({ message: "Failed to fetch class data" });
+  }
 });
 
 //ReadByID
 app.get("/api/class/:id", async (req, res) => {
-
-    const {id} = req.params;
-    console.log(id);
-    const classData = await prisma.class.findFirst({
-        where: {
-            id,
-            status: true,
-        },
-    });
-    
-    console.log(classData);
-    res.status(200).json({
-        message: "Success get class data",
-        data: classData,
-    }); 
+  const {id} = req.params;
+  console.log(id);
+  const classData = await prisma.class.findFirst({
+      where: {
+          id,
+          status: true,
+      },
+      include: {
+          category: true, // Sertakan kategori jika relasi kategori dihubungkan
+      },
+  });
+  
+  console.log(classData);
+  res.status(200).json({
+      message: "Success get class data",
+      data: classData,
+  }); 
 });
 
 //Create
@@ -175,16 +184,20 @@ app.get("/api/category/:id", async (req, res) => {
 
 // Create a category
 app.post("/api/category", async (req, res) => {
-  const data = req.body;
+  const { category, status, imagePath } = req.body;
 
   try {
-    const category = await prisma.category.create({
-      data,
+    const categoryData = await prisma.category.create({
+      data: {
+        category,
+        status: status ?? true,
+        imagePath,
+      },
     });
 
     res.status(201).json({
       message: "Success create category data",
-      data: category,
+      data: categoryData,
     });
   } catch (error) {
     res.status(500).json({ message: "Error creating category", error });
