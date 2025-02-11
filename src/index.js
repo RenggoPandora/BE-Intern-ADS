@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import {PrismaClient} from "@prisma/client"
 import bodyParser from "body-parser";
 import cors from "cors";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 
 
@@ -240,5 +242,148 @@ app.delete("/api/category/:id", async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Error deleting category", error });
+  }
+});
+
+// REGISTER
+
+app.use('/api/register',async (req, res) => {
+  const {name, email, phone, password } = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const result = await prisma.user.create({
+    data: {
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+    }
+  })
+  res.json({
+    message: "Success register",
+    data: result
+  })
+})
+
+//LOGIN
+app.use('/api/login',async (req, res) => {
+  const {email, password } = req.body;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email
+    }
+  })
+
+  if(!user){
+    res.status(404).json({
+      message: "Alamat email tidak terdaftar" 
+      });
+    }
+    if(!user?.password) {
+      return res.status(404),json ({
+        message: "Password not set"
+      })
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user?.password);
+    if(isPasswordValid) {
+      const payload = {
+        id: user.id,
+        email: user.email
+      }
+
+      const secret = process.env.JWT_SECRET;
+
+      const expiresIn = 60 * 60 * 1;
+
+      const token = jwt.sign(payload, secret, { expiresIn: expiresIn })
+
+      return res.json({
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        },
+        token: token
+      })
+    } else {
+      return res.status(403).json({
+        message: "Maaf, kata sandi salah"
+      })
+    }
+  })
+
+//GET ALL USER
+app.get("/api/user", async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.json({
+      message: "Success get user data",
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user", error });
+  }
+});
+
+//GET USER BY ID
+app.get("/api/user/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "Success get user data",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user", error });
+  }
+    })
+
+//Update User
+app.patch("/api/user/:id", async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+
+  try {
+    const user = await prisma.user.update({
+      where: { id },
+      data,
+    });
+
+    res.status(200).json({
+      message: "Success update user data",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user", error });
+  }
+});
+
+//Soft Delete User
+app.delete("/api/user/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await prisma.user.update({
+      where: { id },
+      data: { status: false },
+    });
+
+    res.status(200).json({
+      message: "Success delete user data",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting user", error });
   }
 });
