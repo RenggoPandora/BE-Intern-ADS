@@ -17,7 +17,7 @@ model Class {
   id        String @id @default(cuid())
   code      String
   name      String
-  type      String
+  type      ClassType
   level     String
   price     String
   status    Boolean @default(true)
@@ -25,6 +25,11 @@ model Class {
 
   categoryId String? @map("category_id") 
   category   Category? @relation(fields: [categoryId], references: [id])
+}
+
+enum ClassType {
+  GRATIS
+  PREMIUM
 }
 
 model Category {
