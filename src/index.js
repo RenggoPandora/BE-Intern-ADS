@@ -5,8 +5,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { createClassValidation, updateClassValidation } = require("./validations/classValidation");
-const { createCategoryValidation } = require("./validations/categoryValidation");
+const { createClassValidation, updateClassValidation } = require("./validations/classValidation.js");
+const { createCategoryValidation } = require("./validations/categoryValidation.js");
 
 
 
