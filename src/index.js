@@ -1,12 +1,12 @@
-import express from "express";
-import dotenv from "dotenv";
-import {PrismaClient} from "@prisma/client"
-import bodyParser from "body-parser";
-import cors from "cors";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { createClassValidation, updateClassValidation } from "./validations/classValidation.js";
-import { createCategoryValidation } from "./validations/categoryValidation.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const { PrismaClient } = require("@prisma/client");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { createClassValidation, updateClassValidation } = require("./validations/classValidation");
+const { createCategoryValidation } = require("./validations/categoryValidation");
 
 
 
