@@ -4,7 +4,6 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "main": "src/index.js",
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "nodemon src/index.js"
