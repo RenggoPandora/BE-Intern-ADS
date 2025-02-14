@@ -5,6 +5,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { createClassValidation, updateClassValidation } from "./validations/classValidation.js";
+import { createCategoryValidation } from "./validations/categoryValidation.js";
 
 
 
@@ -66,11 +68,14 @@ app.get("/api/class/:id", async (req, res) => {
 
 //Create
 app.post("/api/class", async (req, res) => {
-    const data= req.body;
-    
+    const {error, value} = createClassValidation(req.body);
+
+    if (error) {
+        return res.status(422).json({ message: error.details[0].message });
+    }
 
     const classData = await prisma.class.create({
-        data,
+        data: value
     });
     
     res.status(200).json({
@@ -82,12 +87,17 @@ app.post("/api/class", async (req, res) => {
 //Patch
 app.patch("/api/class/:id", async (req, res) => {
     const {id} = req.params;
-    const data = req.body;
+    
+    const {error, value} = updateClassValidation(req.body);
+    if (error) {
+      return res.status(422).json({ message: error.details[0].message});
+    }
+
     const classData = await prisma.class.update({
         where: {
             id,
         },
-        data,
+        data: value,
     });
     
     res.status(200).json({
@@ -186,15 +196,15 @@ app.get("/api/category/:id", async (req, res) => {
 
 // Create a category
 app.post("/api/category", async (req, res) => {
-  const { category, status, imagePath } = req.body;
+  const {error,value} = createCategoryValidation(req.body);
+
+  if (error) {
+    return res.status(422).json({ message: error.details[0].message });
+  }
 
   try {
     const categoryData = await prisma.category.create({
-      data: {
-        category,
-        status: status ?? true,
-        imagePath,
-      },
+      data: value
     });
 
     res.status(201).json({
